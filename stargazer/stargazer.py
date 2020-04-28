@@ -12,6 +12,11 @@ https://CRAN.R-project.org/package=stargazer
 
 from __future__ import print_function
 from statsmodels.regression.linear_model import RegressionResultsWrapper
+from statsmodels.discrete.discrete_model import BinaryResultsWrapper
+from statsmodels.genmod.generalized_linear_model import GLMResultsWrapper
+from linearmodels.iv.results import IVResults
+from linearmodels.panel.results import PanelResults
+
 from numpy import round, sqrt
 
 
@@ -24,7 +29,8 @@ class Stargazer:
     chaining different methods to the Stargazer object
     and then render the results in either HTML or LaTeX.
     """
-
+    supported_models = [RegressionResultsWrapper,
+                        BinaryResultsWrapper, GLMResultsWrapper, IVResults, PanelResults]
     def __init__(self, models):
         self.models = models
         self.num_models = len(models)
@@ -39,14 +45,18 @@ class Stargazer:
         Any future checking will be added here.
         """
         targets = []
-
         for m in self.models:
-            if not isinstance(m, RegressionResultsWrapper):
-                raise ValueError('Please use trained OLS models as inputs')
+            support_flag = False
+            for model in supported_models:
+                if isinstance(m, model):
+                    support_flag = True
+                    break
+            if not support_flag:
+                raise ValueError('The ResultWrapper is not currently supported')
             targets.append(m.model.endog_names)
 
-        if targets.count(targets[0]) != len(targets):
-            raise ValueError('Please make sure OLS targets are identical')
+        # if targets.count(targets[0]) != len(targets):
+        #     raise ValueError('Please make sure OLS targets are identical')
 
         self.dependent_variable = targets[0]
 
@@ -102,20 +112,34 @@ class Stargazer:
 
     def extract_model_data(self, model):
         data = {}
-        data['cov_names'] = model.params.index.values
-        data['cov_values'] = model.params
-        data['p_values'] = model.pvalues
-        data['cov_std_err'] = model.bse
-        data['conf_int_low_values'] = model.conf_int()[0]
-        data['conf_int_high_values'] = model.conf_int()[1]
-        data['r2'] = model.rsquared
-        data['r2_adj'] = model.rsquared_adj
-        data['resid_std_err'] = sqrt(model.scale)
-        data['f_statistic'] = model.fvalue
-        data['f_p_value'] = model.f_pvalue
-        data['degree_freedom'] = model.df_model
-        data['degree_freedom_resid'] = model.df_resid
-
+        if isinstance(model, RegressionResultsWrapper):
+            data['cov_names'] = model.params.index.values
+            data['cov_values'] = model.params
+            data['p_values'] = model.pvalues
+            data['cov_std_err'] = model.bse
+            data['conf_int_low_values'] = model.conf_int()[0]
+            data['conf_int_high_values'] = model.conf_int()[1]
+            data['r2'] = model.rsquared
+            data['r2_adj'] = model.rsquared_adj
+            data['resid_std_err'] = sqrt(model.scale)
+            data['f_statistic'] = model.fvalue
+            data['f_p_value'] = model.f_pvalue
+            data['degree_freedom'] = model.df_model
+            data['degree_freedom_resid'] = model.df_resid
+        if isinstance(model, IVResults):
+            data['cov_names'] = model.params.index.values
+            data['cov_values'] = model.params
+            data['p_values'] = model.pvalues
+            data['cov_std_err'] = model.std_errors
+            data['conf_int_low_values'] = model.conf_int()[0]
+            data['conf_int_high_values'] = model.conf_int()[1]
+            data['r2'] = model.rsquared
+            data['r2_adj'] = " "
+            data['resid_std_err'] = model.resids
+            data['f_statistic'] = model.f_statistic_robust.stat
+            data['f_p_value'] = model.f_statistic_robust.pval
+            data['degree_freedom'] = model.df_model
+            data['degree_freedom_resid'] = model.df_resid
         return data
 
     # Begin render option functions
