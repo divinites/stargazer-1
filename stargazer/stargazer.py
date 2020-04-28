@@ -135,8 +135,8 @@ class Stargazer:
             data['cov_values'] = model.params
             data['p_values'] = model.pvalues
             data['cov_std_err'] = model.std_errors
-            data['conf_int_low_values'] = model.conf_int()[0]
-            data['conf_int_high_values'] = model.conf_int()[1]
+            data['conf_int_low_values'] = model.conf_int()["lower"]
+            data['conf_int_high_values'] = model.conf_int()["upper"]
             data['r2'] = model.rsquared
             data['r2_adj'] = " "
             if isinstance(model, OLSResults):
