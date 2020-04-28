@@ -53,7 +53,10 @@ class Stargazer:
                     break
             if not support_flag:
                 raise ValueError('The ResultWrapper is not currently supported')
-            targets.append(m.model.endog_names)
+            try:
+                targets.append(m.model.endog_names)
+            except:
+                targets.append(m.model.dependent.cols[0])
 
         # if targets.count(targets[0]) != len(targets):
         #     raise ValueError('Please make sure OLS targets are identical')
