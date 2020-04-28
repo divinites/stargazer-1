@@ -14,12 +14,13 @@ from __future__ import print_function
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 from statsmodels.discrete.discrete_model import BinaryResultsWrapper
 from statsmodels.genmod.generalized_linear_model import GLMResultsWrapper
+from linearmodels.iv.results import OLSResults
 from linearmodels.iv.results import IVResults
 from linearmodels.panel.results import PanelResults
 
 from numpy import round, sqrt
 
-supported_models = [RegressionResultsWrapper, BinaryResultsWrapper, GLMResultsWrapper, IVResults, PanelResults]
+supported_models = [RegressionResultsWrapper, BinaryResultsWrapper, GLMResultsWrapper, OLSResults, IVResults, PanelResults]
 class Stargazer:
     """
     Class that is constructed with one or more trained
@@ -125,7 +126,7 @@ class Stargazer:
             data['f_p_value'] = model.f_pvalue
             data['degree_freedom'] = model.df_model
             data['degree_freedom_resid'] = model.df_resid
-        if isinstance(model, IVResults):
+        if isinstance(model, IVResults) or isinstance(model, OLSResults):
             data['cov_names'] = model.params.index.values
             data['cov_values'] = model.params
             data['p_values'] = model.pvalues
@@ -134,6 +135,8 @@ class Stargazer:
             data['conf_int_high_values'] = model.conf_int()[1]
             data['r2'] = model.rsquared
             data['r2_adj'] = " "
+            if isinstance(model, OLSResults):
+                data['r2_adj'] = model.rsquared_adj
             data['resid_std_err'] = model.resids
             data['f_statistic'] = model.f_statistic_robust.stat
             data['f_p_value'] = model.f_statistic_robust.pval
