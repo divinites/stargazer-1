@@ -142,8 +142,8 @@ class Stargazer:
             if isinstance(model, OLSResults):
                 data['r2_adj'] = model.rsquared_adj
             data['resid_std_err'] = model.resids
-            data['f_statistic'] = model.f_statistic_robust.stat
-            data['f_p_value'] = model.f_statistic_robust.pval
+            data['f_statistic'] = model.f_statistic.stat
+            data['f_p_value'] = model.f_statistic.pval
             data['degree_freedom'] = model.df_model
             data['degree_freedom_resid'] = model.df_resid
         return data
