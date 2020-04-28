@@ -19,7 +19,7 @@ from linearmodels.panel.results import PanelResults
 
 from numpy import round, sqrt
 
-
+supported_models = [RegressionResultsWrapper, BinaryResultsWrapper, GLMResultsWrapper, IVResults, PanelResults]
 class Stargazer:
     """
     Class that is constructed with one or more trained
@@ -29,8 +29,7 @@ class Stargazer:
     chaining different methods to the Stargazer object
     and then render the results in either HTML or LaTeX.
     """
-    supported_models = [RegressionResultsWrapper,
-                        BinaryResultsWrapper, GLMResultsWrapper, IVResults, PanelResults]
+
     def __init__(self, models):
         self.models = models
         self.num_models = len(models)
