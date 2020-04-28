@@ -21,6 +21,10 @@ from linearmodels.panel.results import PanelResults
 from numpy import round, sqrt
 
 supported_models = [RegressionResultsWrapper, BinaryResultsWrapper, GLMResultsWrapper, OLSResults, IVResults, PanelResults]
+stats_models = supported_models[0:3]
+lin_models = supported_models{3:]
+
+
 class Stargazer:
     """
     Class that is constructed with one or more trained
@@ -47,17 +51,16 @@ class Stargazer:
         targets = []
         for m in self.models:
             support_flag = False
-            for model in supported_models:
+            for model in stats_models:
                 if isinstance(m, model):
                     support_flag = True
-                    break
+                    targets.append(m.model.endog_names)
+            for model in lin_models:
+                if isinstance(m, model):
+                    support_flag = True
+                    targets.append(m.model.dependent.cols[0])
             if not support_flag:
                 raise ValueError('The ResultWrapper is not currently supported')
-            try:
-                targets.append(m.model.endog_names)
-            except:
-                targets.append(m.model.dependent.cols[0])
-
         # if targets.count(targets[0]) != len(targets):
         #     raise ValueError('Please make sure OLS targets are identical')
 
